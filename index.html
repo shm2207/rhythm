@@ -3,183 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>音樂節奏怪獸派對 - 精準感應版</title>
+    <title>音樂節奏怪獸派對 - 打擊回饋版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
         body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            margin: 0; padding: 0; overflow: hidden;
             background-color: #38BDF8;
             font-family: 'Fredoka One', cursive;
-            -webkit-user-select: none;
-            user-select: none;
+            -webkit-user-select: none; user-select: none;
+            overscroll-behavior: none;
         }
 
         #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: relative; width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        canvas {
-            display: block;
-            touch-action: none;
-        }
+        canvas { display: block; touch-action: none; }
 
         .ui-layer {
-            position: absolute;
-            top: env(safe-area-inset-top, 20px);
-            pointer-events: none;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
-            z-index: 100;
+            position: absolute; top: env(safe-area-inset-top, 20px);
+            pointer-events: none; width: 100%; display: flex;
+            justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 100;
         }
 
         .feedback-text {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 60px;
-            color: #FFD700;
-            text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
-            opacity: 0;
-            z-index: 200;
-            pointer-events: none;
+            position: absolute; top: 30%; left: 50%;
+            transform: translate(-50%, -50%); font-size: 60px;
+            color: #FFD700; text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            opacity: 0; z-index: 200; pointer-events: none;
             transition: opacity 0.15s, transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            text-align: center;
-            padding: 20px;
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.95);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; color: white; text-align: center; padding: 20px;
         }
 
         .level-selection-container {
-            width: 100%;
-            max-width: 600px;
-            max-height: 35vh;
-            overflow-y: auto;
-            padding: 10px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            -webkit-overflow-scrolling: touch;
+            width: 100%; max-width: 600px; max-height: 35vh; overflow-y: auto;
+            padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;
         }
 
         .level-card {
-            background: #38BDF8;
-            padding: 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #0284C7;
-            border: 3px solid white;
-            transition: transform 0.1s;
+            background: #38BDF8; padding: 15px; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #0284C7; border: 3px solid white; transition: transform 0.1s;
         }
-
         .level-card:active { transform: scale(0.95); }
 
         .btn-primary {
-            background: #F472B6;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #BE185D;
-            border: none;
-            margin: 5px;
-            text-transform: uppercase;
+            background: #F472B6; color: white; padding: 12px 30px; border-radius: 50px;
+            font-size: 20px; cursor: pointer; box-shadow: 0 6px 0 #BE185D; border: none; margin: 5px;
         }
 
         .settings-panel {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 420px;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
         .mic-visualizer-bg {
-            width: 100%;
-            height: 12px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 5px;
-            position: relative;
+            width: 100%; height: 14px; background: rgba(0,0,0,0.3); border-radius: 7px;
+            overflow: hidden; margin-top: 5px; position: relative;
         }
-
-        #mic-visualizer-fill {
-            width: 0%;
-            height: 100%;
-            background: #4ADE80;
-            transition: width 0.05s;
-        }
-
-        /* 門檻指示線 */
+        #mic-visualizer-fill { width: 0%; height: 100%; background: #4ADE80; transition: width 0.05s; }
         #threshold-marker {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: #F87171;
-            box-shadow: 0 0 5px rgba(248, 113, 113, 0.8);
-            z-index: 10;
+            position: absolute; top: 0; bottom: 0; width: 3px; background: #F87171;
+            box-shadow: 0 0 8px rgba(248, 113, 113, 1); z-index: 10;
         }
 
         .custom-slider {
-            -webkit-appearance: none;
-            flex-grow: 1;
-            height: 10px;
-            border-radius: 5px;
-            background: rgba(0, 0, 0, 0.4);
-            outline: none;
+            -webkit-appearance: none; flex-grow: 1; height: 10px; border-radius: 5px;
+            background: rgba(0, 0, 0, 0.4); outline: none;
         }
-
         .custom-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #FDE047;
-            cursor: pointer;
-            border: 3px solid #FFF;
+            -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+            background: #FDE047; cursor: pointer; border: 3px solid #FFF;
         }
 
         .heart-icon {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            background-color: #EF4444;
+            display: inline-block; width: 22px; height: 22px; background-color: #EF4444;
             clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
             margin-right: 3px;
         }
-
         .heart-lost { background-color: #64748b; opacity: 0.3; }
+
+        @keyframes stamp { 0% { transform: scale(3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .rank-stamp { animation: stamp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        #mic-error-msg { font-size: 10px; color: #FB7185; text-align: center; display: none; }
     </style>
 </head>
 <body>
@@ -201,27 +115,27 @@
 
     <canvas id="gameCanvas"></canvas>
 
-    <!-- 初始選單 -->
     <div id="menu-screen" class="overlay">
         <h1 class="text-5xl md:text-6xl mb-2 font-bold text-white tracking-widest">Rhythm Kitty</h1>
-        <p class="text-sm md:text-lg mb-4 text-blue-200 font-bold">請嘗試拍手或打鼓來測試感應</p>
+        <p class="text-sm md:text-lg mb-4 text-blue-200 font-bold">按空白鍵 (Space) 體驗超強打擊感！</p>
         
         <div class="settings-panel">
-            <div class="flex justify-between items-center">
-                <span class="text-white font-bold text-sm">🎤 感應門檻 (越右邊需要越大聲)</span>
-                <span id="mic-val" class="text-yellow-300 text-xs">50</span>
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-white font-bold text-sm uppercase">🎤 感應靈敏度</span>
+                <button id="calib-btn-ui" class="calibrate-btn bg-blue-600 px-3 py-1 rounded text-xs font-bold" onclick="calibrateNoise()">環境校準</button>
             </div>
             <div class="flex gap-4 items-center">
-                <input type="range" id="mic-slider" class="custom-slider" min="5" max="95" value="50" oninput="updateSettings()">
+                <input type="range" id="mic-slider" class="custom-slider" min="5" max="80" value="25" oninput="updateSettings()">
+                <span id="mic-val" class="text-yellow-300 text-xs w-6">25</span>
             </div>
             <div class="mic-visualizer-bg">
                 <div id="mic-visualizer-fill"></div>
                 <div id="threshold-marker"></div>
             </div>
-            <p id="mic-status" class="text-[10px] text-gray-400">正在自動偵測環境噪音...</p>
+            <div id="mic-error-msg">⚠️ 麥克風未開啟，請使用鍵盤或點擊</div>
             
             <div class="flex justify-between items-center mt-2">
-                <span class="text-white font-bold text-sm">🎵 節拍器音量</span>
+                <span class="text-white font-bold text-sm">🎵 音效總量 (節拍器+打擊)</span>
             </div>
             <input type="range" id="vol-slider" class="custom-slider" min="0" max="100" value="40" oninput="updateSettings()">
         </div>
@@ -235,14 +149,19 @@
         <div class="level-selection-container" id="level-selection"></div>
     </div>
 
-    <!-- 結果畫面 -->
     <div id="result-screen" class="overlay" style="display: none;">
-        <h2 id="result-title" class="text-5xl mb-6 font-bold">挑戰完成！</h2>
-        <div class="bg-white p-8 rounded-3xl mb-10 text-slate-800 w-72 shadow-2xl">
-            <p class="text-3xl mb-1 font-bold">得分：<span id="final-score" class="text-pink-500">0</span></p>
-            <p class="text-sm text-slate-400 font-bold uppercase tracking-widest">Best: <span id="best-score">0</span></p>
+        <h2 id="result-title" class="text-4xl md:text-5xl mb-4 font-bold">挑戰完成！</h2>
+        <div id="rank-container" class="mb-6 flex flex-col items-center">
+            <div id="rank-letter" class="rank-stamp text-8xl font-black italic drop-shadow-lg leading-none">S</div>
+            <div id="rank-title" class="mt-2 px-4 py-1 bg-yellow-400 text-black rounded-full font-bold text-lg">傳說級小貓</div>
         </div>
-        <div class="flex flex-col gap-4 w-64">
+        <div class="bg-white p-6 rounded-3xl mb-8 text-slate-800 w-72 shadow-2xl relative overflow-hidden">
+            <p class="text-2xl mb-1 font-bold">得分：<span id="final-score" class="text-pink-500">0</span></p>
+            <p class="text-sm text-slate-500 font-bold">MAX COMBO: <span id="final-combo" class="text-blue-500">0</span></p>
+            <div class="h-[1px] bg-slate-100 my-2"></div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Best Score: <span id="best-score">0</span></p>
+        </div>
+        <div class="flex flex-col gap-3 w-64">
             <button class="btn-primary" onclick="restartLevel()">再次挑戰</button>
             <button class="btn-primary" style="background: #34D399; box-shadow: 0 6px 0 #059669;" onclick="backToMenu()">返回首頁</button>
         </div>
@@ -263,9 +182,19 @@
         master: { name: "大師", perfect: 0.06, great: 0.15, color: "#EF4444" }
     };
 
+    const RANK_DATA = [
+        { min: 0.95, letter: 'S+', title: '彩虹律動大師', color: '#FDE047' },
+        { min: 0.85, letter: 'S', title: '節奏界貓神', color: '#FACC15' },
+        { min: 0.75, letter: 'A', title: '貓爪快手', color: '#FB923C' },
+        { min: 0.60, letter: 'B', title: '派對活躍份子', color: '#60A5FA' },
+        { min: 0.40, letter: 'C', title: '節奏實習生', color: '#94A3B8' },
+        { min: 0.00, letter: 'D', title: '剛睡醒的貓', color: '#64748B' }
+    ];
+
     let currentDifficulty = 'performance';
     let currentLevel = 1;
     let score = 0;
+    let totalPossibleScore = 0;
     let hp = INITIAL_HP;
     let combo = 0;
     let maxCombo = 0;
@@ -274,11 +203,13 @@
     let startTime = 0;
     let lastPlayedBeat = -1;
     
-    // 音訊感測變數
-    let micThreshold = 50; 
-    let metronomeVolume = 0.08; 
-    let noiseFloor = 0; // 環境噪音基準
-    let lastInputTime = 0; // 防止連點抖動
+    let micSensitivity = 25; 
+    let masterVolume = 0.4; 
+    let noiseFloor = 0; 
+    let lastInputTime = 0;
+    let lastPeak = 0;
+    let isCalibrating = false;
+    let micAvailable = false;
 
     let audioCtx;
     let analyser, dataArray;
@@ -299,18 +230,16 @@
     const gameUI = document.getElementById('game-ui');
     const diffIndicator = document.getElementById('difficulty-indicator');
     const micFill = document.getElementById('mic-visualizer-fill');
-    const micStatus = document.getElementById('mic-status');
     const marker = document.getElementById('threshold-marker');
+    const micErrorMsg = document.getElementById('mic-error-msg');
 
-    const player = { y: 0, scaleX: 1, scaleY: 1 };
+    const player = { y: 0, scaleX: 1, scaleY: 1, expression: 'normal', expressionTimer: 0 };
 
     function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         player.y = canvas.height * 0.65;
     }
-    window.addEventListener('resize', resize);
-    resize();
+    window.addEventListener('resize', resize); resize();
 
     const levelsData = [
         { id: 1, name: "入門節奏", patterns: [['ta', 'ta', 'ta', 'ta'], ['ta', 'rest', 'ta', 'rest']] },
@@ -322,20 +251,35 @@
     ];
 
     function updateSettings() {
-        micThreshold = parseInt(document.getElementById('mic-slider').value);
-        document.getElementById('mic-val').innerText = micThreshold;
-        marker.style.left = micThreshold + '%';
-        metronomeVolume = (parseInt(document.getElementById('vol-slider').value) / 100) * 0.2;
-        
-        if (!analyser) initAudio();
+        micSensitivity = parseInt(document.getElementById('mic-slider').value);
+        document.getElementById('mic-val').innerText = micSensitivity;
+        const totalThreshold = Math.min(98, noiseFloor + micSensitivity);
+        marker.style.left = totalThreshold + '%';
+        masterVolume = parseInt(document.getElementById('vol-slider').value) / 100;
+    }
+
+    async function calibrateNoise() {
+        const success = await initAudio();
+        if (!success || isCalibrating) return;
+        isCalibrating = true;
+        let samples = []; const startCalib = Date.now();
+        const sampleTask = setInterval(() => {
+            analyser.getByteFrequencyData(dataArray);
+            let peak = 0; for(let j=0; j<dataArray.length; j++) if(dataArray[j] > peak) peak = dataArray[j];
+            samples.push(peak);
+            if (Date.now() - startCalib > 1000) {
+                clearInterval(sampleTask);
+                samples.sort((a, b) => b - a);
+                const avgPeak = samples.slice(0, Math.floor(samples.length * 0.1)).reduce((a, b) => a + b, 0) / (samples.length * 0.1);
+                noiseFloor = (avgPeak / 255) * 100; isCalibrating = false; updateSettings();
+            }
+        }, 30);
     }
 
     function initHearts() {
         heartsContainer.innerHTML = '';
         for (let i = 0; i < INITIAL_HP; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'heart-icon';
-            heartsContainer.appendChild(heart);
+            const heart = document.createElement('div'); heart.className = 'heart-icon'; heartsContainer.appendChild(heart);
         }
     }
 
@@ -348,151 +292,116 @@
     }
 
     function initMenu() {
-        const grid = document.getElementById('level-selection');
-        grid.innerHTML = '';
+        const grid = document.getElementById('level-selection'); grid.innerHTML = '';
         levelsData.forEach(lvl => {
             const best = localStorage.getItem(`best_score_lvl_${lvl.id}_${currentDifficulty}`) || 0;
-            const card = document.createElement('div');
-            card.className = 'level-card';
+            const card = document.createElement('div'); card.className = 'level-card';
             card.onclick = () => startLevel(lvl.id);
             card.innerHTML = `<div class="text-[10px] text-white opacity-80 font-bold">LV 0${lvl.id}</div><div class="text-lg font-bold text-white leading-tight">${lvl.name}</div><div class="text-[10px] text-blue-100 font-bold mt-1">BEST: ${best}</div>`;
             grid.appendChild(card);
         });
-        marker.style.left = micThreshold + '%';
+        updateSettings();
     }
 
     async function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') await audioCtx.resume();
-        
-        if (micStream) return;
-
+        if (micAvailable && audioCtx) return true;
         try {
-            // 停用所有自動增益和降噪，獲取最原始的打擊訊號
-            micStream = await navigator.mediaDevices.getUserMedia({ 
-                audio: { 
-                    echoCancellation: false, 
-                    noiseSuppression: false, 
-                    autoGainControl: false 
-                } 
-            });
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             analyser = audioCtx.createAnalyser();
             const source = audioCtx.createMediaStreamSource(micStream);
-            source.connect(analyser);
-            analyser.fftSize = 512;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            micStatus.innerText = "🎤 麥克風已就緒 - 請點選關卡開始";
-            micStatus.style.color = "#4ADE80";
-            monitorMic();
+            const filter = audioCtx.createBiquadFilter(); filter.type = "highpass"; filter.frequency.value = 400; 
+            source.connect(filter); filter.connect(analyser);
+            analyser.fftSize = 512; dataArray = new Uint8Array(analyser.frequencyBinCount);
+            micAvailable = true; micErrorMsg.style.display = 'none'; monitorMic(); return true;
         } catch (err) { 
-            micStatus.innerText = "❌ 無法存取麥克風，請檢查權限";
-            micStatus.style.color = "#EF4444";
+            micAvailable = false; micErrorMsg.style.display = 'block'; return false;
         }
     }
 
     function monitorMic() {
-        if (!analyser) return;
+        if (!analyser || !micAvailable) return;
         analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        let peak = 0;
-        for(let i=0; i<dataArray.length; i++) {
-            sum += dataArray[i];
-            if(dataArray[i] > peak) peak = dataArray[i];
-        }
-        
-        const average = sum / dataArray.length;
+        let peak = 0; for(let i=0; i<dataArray.length; i++) if(dataArray[i] > peak) peak = dataArray[i];
         const currentVolume = (peak / 255) * 100;
-        
-        // 更新環境噪音基準 (緩慢追蹤環境底噪)
-        if (currentVolume < noiseFloor || noiseFloor === 0) {
-            noiseFloor = currentVolume;
-        } else {
-            noiseFloor = noiseFloor * 0.999 + currentVolume * 0.001;
-        }
-
-        // 視覺化
+        const totalThreshold = Math.max(10, noiseFloor + micSensitivity);
         micFill.style.width = currentVolume + '%';
-        micFill.style.background = currentVolume > micThreshold ? '#F87171' : '#4ADE80';
-
-        // 判定擊發條件：
-        // 1. 當前峰值 > 使用者設定的門檻
-        // 2. 當前峰值 > 環境噪音 + 一定的餘裕 (防止噪音漂移)
-        // 3. 距離上次輸入超過 80ms (防止單次擊打產生多次觸發)
         const now = Date.now();
-        if (currentVolume > micThreshold && currentVolume > noiseFloor + 5 && now - lastInputTime > 80) {
-            if (isGameRunning) {
-                handleInput();
-            }
-            lastInputTime = now;
-        }
+        if (currentVolume > totalThreshold && currentVolume - lastPeak > 5 && now - lastInputTime > 110) {
+            if (isGameRunning) handleInput();
+            micFill.style.background = '#F87171'; lastInputTime = now;
+        } else { micFill.style.background = '#4ADE80'; }
+        lastPeak = currentVolume; requestAnimationFrame(monitorMic);
+    }
 
-        requestAnimationFrame(monitorMic);
+    // --- 新增：打擊鼓面音效 ---
+    function playHitSound() {
+        if (!audioCtx || masterVolume <= 0) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        // 模擬鼓皮打擊感：從高頻迅速降到低頻
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+        
+        gain.gain.setValueAtTime(masterVolume * 0.8, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
     }
 
     function playMetronomeSound(isDownbeat) {
-        if (!audioCtx || metronomeVolume <= 0) return;
+        if (!audioCtx || masterVolume <= 0) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(isDownbeat ? 880 : 440, audioCtx.currentTime);
-        gain.gain.setValueAtTime(metronomeVolume, audioCtx.currentTime);
+        gain.gain.setValueAtTime(masterVolume * 0.15, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.05);
     }
 
+    function getColorStage(currentCombo) {
+        if (currentCombo >= 57) return 'rainbow';
+        if (currentCombo >= 49) return '#4ADE80'; if (currentCombo >= 33) return '#FB923C'; 
+        if (currentCombo >= 24) return '#38BDF8'; if (currentCombo >= 8)  return '#C084FC'; 
+        return '#FFFFFF';
+    }
+
     function generateLevel(levelId) {
-        globalPlatforms = []; globalNotes = [];
+        globalPlatforms = []; globalNotes = []; totalPossibleScore = 0;
         const lvlInfo = levelsData.find(l => l.id === levelId);
         for (let p = 0; p < PHRASES_PER_LEVEL; p++) {
             let baseX = p * 5 * BASE_UNIT; let startBeat = p * 8; 
             globalPlatforms.push({ type: 'count_in', worldX: baseX, width: BASE_UNIT * 0.7, height: 100 });
             let selectedPattern = lvlInfo.patterns[Math.floor(Math.random() * lvlInfo.patterns.length)];
             selectedPattern.forEach((noteType, index) => {
-                let localBeatIndex = 4 + index; 
-                let platformX = baseX + (index + 1) * BASE_UNIT; 
+                let localBeatIndex = 4 + index; let platformX = baseX + (index + 1) * BASE_UNIT; 
                 globalPlatforms.push({ type: 'challenge', worldX: platformX, width: BASE_UNIT * 0.8, height: 100, noteType });
-                
-                if (noteType === 'ta') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'ta', hit: false, parentX: platformX, subPos: 0, beamToNext: 0 });
-                } else if (noteType === 'rest') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'rest', hit: false, parentX: platformX, subPos: 0, beamToNext: 0 });
-                } else if (noteType === 'ti') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'ti', hit: false, parentX: platformX, subPos: -0.15, beamToNext: 1 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.5, type: 'ti', hit: false, parentX: platformX, subPos: 0.15, beamToNext: 0 });
-                } else if (noteType === 'tiritiri') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'tiri', hit: false, parentX: platformX, subPos: -0.24, beamToNext: 2 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.25, type: 'tiri', hit: false, parentX: platformX, subPos: -0.08, beamToNext: 2 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.5, type: 'tiri', hit: false, parentX: platformX, subPos: 0.08, beamToNext: 2 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.75, type: 'tiri', hit: false, parentX: platformX, subPos: 0.24, beamToNext: 0 });
-                } else if (noteType === 'ti-tiri') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'ti-tiri', hit: false, parentX: platformX, subPos: -0.2, beamToNext: 1 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.5, type: 'ti-tiri', hit: false, parentX: platformX, subPos: 0.04, beamToNext: 2 });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.75, type: 'ti-tiri', hit: false, parentX: platformX, subPos: 0.24, beamToNext: 0 });
-                } else if (noteType === 'ti-ri') {
-                    globalNotes.push({ time: startBeat + localBeatIndex, type: 'ti-ri', hit: false, parentX: platformX, subPos: -0.15, beamToNext: 1, dot: true });
-                    globalNotes.push({ time: startBeat + localBeatIndex + 0.75, type: 'ti-ri', hit: false, parentX: platformX, subPos: 0.2, beamToNext: 0, beamStub: 'left' });
-                }
+                const addNote = (time, subPos, beam = 0) => {
+                    globalNotes.push({ time, type: noteType, hit: false, parentX: platformX, subPos, beamToNext: beam });
+                    if (noteType !== 'rest') totalPossibleScore += 100;
+                };
+                if (noteType === 'ta' || noteType === 'rest') addNote(startBeat + localBeatIndex, 0);
+                else if (noteType === 'ti') { addNote(startBeat + localBeatIndex, -0.15, 1); addNote(startBeat + localBeatIndex + 0.5, 0.15); }
+                else if (noteType === 'tiritiri') { addNote(startBeat + localBeatIndex, -0.24, 2); addNote(startBeat + localBeatIndex + 0.25, -0.08, 2); addNote(startBeat + localBeatIndex + 0.5, 0.08, 2); addNote(startBeat + localBeatIndex + 0.75, 0.24); }
+                else if (noteType === 'ti-tiri') { addNote(startBeat + localBeatIndex, -0.2, 1); addNote(startBeat + localBeatIndex + 0.5, 0.04, 2); addNote(startBeat + localBeatIndex + 0.75, 0.24); }
+                else if (noteType === 'ti-ri') { addNote(startBeat + localBeatIndex, -0.15, 1); addNote(startBeat + localBeatIndex + 0.75, 0.2); }
             });
         }
     }
 
     async function startLevel(id) {
-        await initAudio();
-        
-        currentLevel = id; score = 0; hp = INITIAL_HP; combo = 0; maxCombo = 0; lastPlayedBeat = -1;
-        initHearts();
+        await initAudio(); currentLevel = id; score = 0; hp = INITIAL_HP; combo = 0; maxCombo = 0; lastPlayedBeat = -1;
+        player.expression = 'normal'; player.expressionTimer = 0; initHearts();
         const settings = DIFFICULTY_SETTINGS[currentDifficulty];
-        diffIndicator.innerText = settings.name;
-        diffIndicator.style.backgroundColor = settings.color;
-        
+        diffIndicator.innerText = settings.name; diffIndicator.style.backgroundColor = settings.color;
         menuScreen.style.display = 'none'; resultScreen.style.display = 'none';
-        gameUI.style.display = 'flex'; comboEl.style.display = 'block'; comboEl.innerText = "0 COMBO";
-        
-        generateLevel(currentLevel);
-        startTime = Date.now(); isGameRunning = true; gameState = 'PLAYING';
+        gameUI.style.display = 'flex'; comboEl.style.display = 'block';
+        generateLevel(currentLevel); startTime = Date.now(); isGameRunning = true; gameState = 'PLAYING';
         requestAnimationFrame(gameLoop);
     }
 
@@ -500,55 +409,57 @@
         if (!isGameRunning || gameState !== 'PLAYING') return;
         const currentBeatFloat = Math.max(0, (Date.now() - startTime) / 1000) / SECONDS_PER_BEAT;
         let closest = null; let minDist = Infinity;
-        
         globalNotes.forEach(n => {
             if (n.hit || n.missed || n.type === 'rest') return;
             let dist = Math.abs(currentBeatFloat - n.time) * SECONDS_PER_BEAT;
             if (dist < minDist) { minDist = dist; closest = n; }
         });
-
         const sets = DIFFICULTY_SETTINGS[currentDifficulty];
         if (closest && minDist < sets.great) {
-            closest.hit = true; 
-            combo++; 
-            if (combo > maxCombo) maxCombo = combo;
-            const isPerf = minDist < sets.perfect;
-            score += isPerf ? 100 : 50;
-            comboEl.innerText = `${combo} COMBO`;
+            playHitSound(); // 觸發打擊回饋音
+            closest.hit = true; combo++; if (combo > maxCombo) maxCombo = combo;
+            const isPerf = minDist < sets.perfect; score += isPerf ? 100 : 50;
+            comboEl.innerText = `${combo} COMBO`; player.expression = isPerf ? 'perfect' : 'happy';
+            player.expressionTimer = 30; const sc = getColorStage(combo);
+            comboEl.style.color = sc === 'rainbow' ? '#FFF' : sc;
             showFeedback(isPerf ? "PERFECT!" : "GREAT!", isPerf ? "#FDE047" : "#FFFFFF");
             player.scaleX = 1.4; player.scaleY = 0.6;
-        } else {
-            // 只有在真的點擊（非空氣點擊）且遊戲中才扣血
-            takeDamage();
-        }
+        } else { takeDamage(); }
     }
 
     function takeDamage() {
         if (hp <= 0) return;
         hp--; combo = 0; comboEl.innerText = `0 COMBO`;
-        const hearts = heartsContainer.children;
-        if (hearts[hp]) hearts[hp].classList.add('heart-lost');
-        showFeedback("MISS!", "#EF4444");
-        if (hp <= 0) showResults(true);
+        const hearts = heartsContainer.children; if (hearts[hp]) hearts[hp].classList.add('heart-lost');
+        player.expression = 'dizzy'; player.expressionTimer = 40;
+        showFeedback("MISS!", "#EF4444"); if (hp <= 0) showResults(true);
     }
 
     function showFeedback(txt, color) {
         feedbackEl.innerText = txt; feedbackEl.style.color = color; feedbackEl.style.opacity = 1;
         feedbackEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
-        setTimeout(() => { 
-            feedbackEl.style.opacity = 0; 
-            feedbackEl.style.transform = 'translate(-50%, -50%) scale(1)'; 
-        }, 300);
+        setTimeout(() => { feedbackEl.style.opacity = 0; feedbackEl.style.transform = 'translate(-50%, -50%) scale(1)'; }, 300);
     }
 
     function showResults(failed = false) {
         isGameRunning = false; gameState = 'RESULT'; gameUI.style.display = 'none'; comboEl.style.display = 'none';
+        const scoreRatio = failed ? 0 : score / (totalPossibleScore || 1);
+        const rank = RANK_DATA.find(r => scoreRatio >= r.min) || RANK_DATA[RANK_DATA.length - 1];
         const bestKey = `best_score_lvl_${currentLevel}_${currentDifficulty}`;
         let best = localStorage.getItem(bestKey) || 0;
         if (!failed && score > best) { best = score; localStorage.setItem(bestKey, score); }
         document.getElementById('result-title').innerText = failed ? "挑戰失敗" : "完成挑戰！";
-        document.getElementById('result-title').style.color = failed ? "#EF4444" : "#10B981";
-        document.getElementById('final-score').innerText = score; document.getElementById('best-score').innerText = best;
+        document.getElementById('final-score').innerText = score; document.getElementById('final-combo').innerText = maxCombo;
+        document.getElementById('best-score').innerText = best;
+        const rankLetterEl = document.getElementById('rank-letter'); const rankTitleEl = document.getElementById('rank-title');
+        if (failed) {
+            rankLetterEl.innerText = 'F'; rankLetterEl.style.color = '#EF4444';
+            rankTitleEl.innerText = '體力不支的小貓'; rankTitleEl.style.backgroundColor = '#475569';
+        } else {
+            rankLetterEl.innerText = rank.letter; rankLetterEl.style.color = rank.color;
+            rankTitleEl.innerText = rank.title; rankTitleEl.style.backgroundColor = rank.color;
+            rankTitleEl.style.color = (rank.letter.includes('S')) ? '#000' : '#FFF';
+        }
         resultScreen.style.display = 'flex';
     }
 
@@ -558,23 +469,43 @@
     function drawPlatform(platform, screenX, screenY) {
         const w = platform.width; const h = platform.height;
         const color = platform.type === 'count_in' ? '#0EA5E9' : '#C084FC';
-        ctx.fillStyle = color;
-        ctx.beginPath(); ctx.roundRect(screenX - w/2, screenY, w, h, 15); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.beginPath(); ctx.roundRect(screenX - w/2, screenY, w, 25, {tl: 15, tr: 15}); ctx.fill();
+        ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(screenX - w/2, screenY, w, h, 15); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.roundRect(screenX - w/2, screenY, w, 25, {tl: 15, tr: 15}); ctx.fill();
+    }
+
+    function drawCatEyes(eyeX, eyeY, size, expression, comboCount) {
+        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#1E293B'; ctx.fillStyle = '#1E293B';
+        if (expression === 'perfect') {
+            for (let side of [-1, 1]) {
+                const cx = eyeX * side; ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 0.8 * Math.PI) - Math.PI / 2; let r = (i % 2 === 0) ? 8 : 4;
+                    ctx.lineTo(cx + Math.cos(angle) * r, eyeY + Math.sin(angle) * r);
+                }
+                ctx.closePath(); ctx.fillStyle = '#FDE047'; ctx.fill(); ctx.stroke();
+            }
+        } else if (expression === 'happy' || (comboCount > 0 && expression === 'normal')) {
+            for (let side of [-1, 1]) { ctx.beginPath(); ctx.arc(eyeX * side, eyeY + 2, 6, Math.PI, 0, false); ctx.stroke(); }
+        } else if (expression === 'dizzy') {
+            for (let side of [-1, 1]) {
+                const cx = eyeX * side; ctx.beginPath();
+                ctx.moveTo(cx - 5, eyeY - 5); ctx.lineTo(cx + 5, eyeY + 5); ctx.moveTo(cx + 5, eyeY - 5); ctx.lineTo(cx - 5, eyeY + 5); ctx.stroke();
+            }
+        } else { ctx.beginPath(); ctx.arc(-eyeX, eyeY, 4, 0, Math.PI * 2); ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2); ctx.fill(); }
     }
 
     function drawCat(x, y, beatFloat) {
         const jump = Math.sin((beatFloat % 1) * Math.PI) * -140;
         player.scaleX += (1.0 - player.scaleX) * 0.15; player.scaleY += (1.0 - player.scaleY) * 0.15;
-        
+        if (player.expressionTimer > 0) { player.expressionTimer--; if (player.expressionTimer === 0) player.expression = 'normal'; }
+        let catBaseColor = '#FFFFFF'; const sc = getColorStage(combo);
+        if (sc === 'rainbow') catBaseColor = `hsl(${(Date.now() / 20) % 360}, 80%, 70%)`;
+        else if (sc !== '#FFFFFF') catBaseColor = sc;
         ctx.save(); ctx.translate(x, y + jump); ctx.scale(player.scaleX, player.scaleY);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath(); ctx.moveTo(-20, -40); ctx.lineTo(-12, -65); ctx.lineTo(-4, -45); 
+        ctx.fillStyle = catBaseColor; ctx.beginPath(); ctx.moveTo(-20, -40); ctx.lineTo(-12, -65); ctx.lineTo(-4, -45); 
         ctx.moveTo(20, -40); ctx.lineTo(12, -65); ctx.lineTo(4, -45); ctx.fill();
         ctx.beginPath(); ctx.roundRect(-30, -50, 60, 50, 15); ctx.fill();
-        ctx.fillStyle = '#1E293B'; ctx.beginPath(); ctx.arc(-12, -25, 4, 0, Math.PI*2); ctx.arc(12, -25, 4, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
+        drawCatEyes(12, -25, 4, player.expression, combo); ctx.restore();
     }
 
     function gameLoop() {
@@ -584,33 +515,26 @@
         const currentBeatFloat = elapsed / SECONDS_PER_BEAT;
         const currentPhrase = Math.floor(currentBeatFloat / 8);
         const localBeat = currentBeatFloat % 8;
-        
         if (currentPhrase >= PHRASES_PER_LEVEL) { showResults(); return; }
-        
         let scroll = currentPhrase * 5 * BASE_UNIT;
         if (localBeat >= 3) scroll += (localBeat - 3) * BASE_UNIT;
-
-        ctx.fillStyle = '#38BDF8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const sc = getColorStage(combo);
+        ctx.fillStyle = sc === 'rainbow' ? `hsl(${(Date.now()/50)%360}, 40%, 60%)` : '#38BDF8';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#34D399'; ctx.fillRect(0, player.y + 60, canvas.width, canvas.height);
-
         globalPlatforms.forEach(p => {
-            const sx = START_LINE_X + p.worldX - scroll;
-            if (sx > -200 && sx < canvas.width + 200) drawPlatform(p, sx, player.y);
+            const sx = START_LINE_X + p.worldX - scroll; if (sx > -200 && sx < canvas.width + 200) drawPlatform(p, sx, player.y);
         });
-
         globalNotes.forEach((n, idx) => {
             let sx = START_LINE_X + n.parentX - scroll + (n.subPos * BASE_UNIT);
             if (sx > -100 && sx < canvas.width + 100 && !n.hit) {
-                const ny = player.y + 75; 
-                ctx.fillStyle = '#1E293B'; ctx.strokeStyle = '#1E293B';
+                const ny = player.y + 75; ctx.fillStyle = '#1E293B'; ctx.strokeStyle = '#1E293B';
                 if (n.type === 'rest') {
-                    ctx.lineWidth = 4; ctx.beginPath();
-                    ctx.moveTo(sx - 6, ny - 40); ctx.lineTo(sx + 6, ny - 25); ctx.lineTo(sx - 4, ny - 15);
+                    ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(sx - 6, ny - 40); ctx.lineTo(sx + 6, ny - 25); ctx.lineTo(sx - 4, ny - 15);
                     ctx.bezierCurveTo(sx + 10, ny - 10, sx + 8, ny + 5, sx - 6, ny + 5); ctx.stroke();
                 } else {
                     ctx.beginPath(); ctx.ellipse(sx, ny, 10, 8, -0.3, 0, Math.PI*2); ctx.fill();
                     ctx.fillRect(sx + 7, ny - 40, 4, 40); 
-                    if (n.dot) { ctx.beginPath(); ctx.arc(sx + 20, ny - 2, 4, 0, Math.PI*2); ctx.fill(); }
                     if (n.beamToNext > 0) {
                         const next = globalNotes[idx+1];
                         if (next && next.parentX === n.parentX) {
@@ -621,37 +545,20 @@
                     }
                 }
             }
-            if (!n.hit && !n.missed && currentBeatFloat > n.time + 0.3) {
-                n.missed = true; if (n.type !== 'rest') takeDamage();
-            }
+            if (!n.hit && !n.missed && currentBeatFloat > n.time + 0.3) { n.missed = true; if (n.type !== 'rest') takeDamage(); }
         });
-
         drawCat(START_LINE_X, player.y, currentBeatFloat);
-        
-        const bn = Math.floor(currentBeatFloat % 4);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.roundRect(canvas.width/2 - 60, canvas.height - 50, 120, 30, 15); ctx.fill();
-        for(let i=0; i<4; i++) {
-            ctx.fillStyle = i === bn ? '#FDE047' : 'rgba(255,255,255,0.3)';
-            ctx.beginPath(); ctx.arc(canvas.width/2 - 45 + i*30, canvas.height - 35, i === bn ? 8 : 5, 0, Math.PI*2); ctx.fill();
-        }
-
         if (Math.floor(currentBeatFloat) > lastPlayedBeat) {
-            playMetronomeSound(Math.floor(currentBeatFloat) % 4 === 0);
-            lastPlayedBeat = Math.floor(currentBeatFloat);
+            playMetronomeSound(Math.floor(currentBeatFloat) % 4 === 0); lastPlayedBeat = Math.floor(currentBeatFloat);
         }
-
-        scoreEl.innerText = `SCORE: ${score}`;
-        statusEl.innerText = localBeat < 4 ? `READY ${Math.floor(localBeat)+1}` : "GO!";
+        scoreEl.innerText = `SCORE: ${score}`; statusEl.innerText = localBeat < 4 ? `READY ${Math.floor(localBeat)+1}` : "GO!";
         requestAnimationFrame(gameLoop);
     }
 
     initMenu();
-
+    window.addEventListener('keydown', e => { if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); if (isGameRunning) handleInput(); } });
     canvas.addEventListener('touchstart', e => { e.preventDefault(); handleInput(); }, {passive: false});
     canvas.addEventListener('mousedown', e => { e.preventDefault(); handleInput(); });
-    window.addEventListener('keydown', e => { 
-        if(e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); handleInput(); }
-    });
 </script>
 
 </body>
